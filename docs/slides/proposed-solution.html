@@ -1,0 +1,417 @@
+<title>Proposed Solution</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --navy: #1F3864;
+    --navy-deep: #142a4d;
+    --cyan: #0e7490;
+    --cyan-tint: #ecfeff;
+    --cyan-border: #a5f3fc;
+    --ink: #1e293b;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --panel: #f8fafc;
+    --page: #eef2f6;
+    --font-display: 'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--font-display);
+  }
+
+  /* Fixed 1280x720 intrinsic slide, uniformly scaled to fit the viewport (see
+     the script at the bottom) — this artifact renders in host panels of very
+     different widths, and a real slide should never internally reflow or let
+     its cards overlap; it should just get visually smaller as one rigid unit,
+     exactly like an exported PNG of a PowerPoint slide would. */
+  .stage {
+    width: 100vw;
+    height: 100vh;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    flex: 0 0 auto;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 12px 32px rgba(15, 23, 42, 0.08);
+    padding: 40px 52px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ===== Mandatory template heading ===== */
+  .heading {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 0 0 6px;
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+  }
+  .heading .diamond { color: var(--navy); font-size: 0.85em; }
+  .heading .txt { text-decoration: underline; text-underline-offset: 3px; }
+
+  .dek {
+    font-size: 13.5px;
+    color: var(--muted);
+    margin: 0 0 20px;
+    max-width: 920px;
+    line-height: 1.5;
+  }
+  .dek strong { color: var(--ink); font-weight: 600; }
+
+  /* ===== Pipeline ===== */
+  .pipeline {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+    gap: 18px;
+    min-height: 0;
+  }
+
+  .arrow {
+    flex: 0 0 auto;
+    color: var(--cyan);
+    opacity: 0.55;
+    display: flex;
+    align-items: center;
+  }
+  .arrow svg { width: 26px; height: 26px; }
+
+  .node {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 118px;
+    text-align: center;
+  }
+  .node-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    background: var(--navy);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(31, 56, 100, 0.25);
+  }
+  .node-icon svg { width: 34px; height: 34px; }
+  .node-label { font-size: 14.5px; font-weight: 600; color: var(--ink); line-height: 1.25; }
+  .node-sub { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+
+  .group {
+    flex: 1 1 0;
+    min-width: 0;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .group-label {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  /* 2x2 analysis modules */
+  .modules {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .mod {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 14px 13px;
+  }
+  .mod-icon {
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--cyan-tint);
+    color: var(--cyan);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mod-icon svg { width: 18px; height: 18px; }
+  .mod-name { font-size: 12.5px; font-weight: 600; color: var(--ink); line-height: 1.25; }
+  .mod-sub { font-family: var(--font-mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* stacked output badges */
+  .outputs { display: flex; flex-direction: column; gap: 14px; }
+  .out {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid var(--cyan-border);
+    border-radius: 9px;
+    padding: 14px 15px;
+  }
+  .out-icon {
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background: var(--navy);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .out-icon svg { width: 19px; height: 19px; }
+  .out-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .out-note { font-size: 11px; color: var(--cyan); font-weight: 500; margin-top: 1px; }
+
+  /* stacked delivery */
+  .delivery { display: flex; flex-direction: column; gap: 16px; }
+  .del {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 16px 15px;
+  }
+  .del-icon {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .del-icon svg { width: 20px; height: 20px; }
+  .del-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .del-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+  /* ===== Innovation row ===== */
+  .innovation {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+  }
+  .tile {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+  }
+  .tile-icon {
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    background: var(--navy);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tile-icon svg { width: 20px; height: 20px; }
+  .tile-title { font-size: 13px; font-weight: 700; color: var(--ink); line-height: 1.25; }
+  .tile-sub { font-size: 11px; color: var(--muted); line-height: 1.35; margin-top: 3px; }
+
+  .innov-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin: 0 0 10px;
+  }
+</style>
+
+<div class="stage">
+  <div class="slide">
+    <h1 class="heading"><span class="diamond">&#10070;</span><span class="txt">Proposed Solution (Describe your Idea/Solution/Prototype)</span></h1>
+    <p class="dek">An <strong>AI + forensic pipeline</strong> that scores every email with explainable evidence, traces where high-risk mail really originated, and produces a tamper-evident forensic report &mdash; automatically, end to end.</p>
+
+    <div class="pipeline">
+      <div class="node">
+        <div class="node-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+        </div>
+        <div class="node-label">Raw Email</div>
+        <div class="node-sub">.eml in</div>
+      </div>
+
+      <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+
+      <div class="group" style="flex: 1.55 1 0;">
+        <div class="group-label">Detection Engine</div>
+        <div class="modules">
+          <div class="mod">
+            <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 4.5 3.2 7.6 8 9 4.8-1.4 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></div>
+            <div>
+              <div class="mod-name">Header Forensics</div>
+              <div class="mod-sub">SPF&middot;DKIM&middot;DMARC&middot;DNS</div>
+            </div>
+          </div>
+          <div class="mod">
+            <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M18 6l-2 2M8 16l-2 2"/><circle cx="12" cy="12" r="3.2"/></svg></div>
+            <div>
+              <div class="mod-name">AI Content Analysis</div>
+              <div class="mod-sub">Claude LLM intent</div>
+            </div>
+          </div>
+          <div class="mod">
+            <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18Z"/></svg></div>
+            <div>
+              <div class="mod-name">Domain / IP Intel</div>
+              <div class="mod-sub">WHOIS&middot;geolocation</div>
+            </div>
+          </div>
+          <div class="mod">
+            <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l2-2a5 5 0 0 0-7.07-7.07l-1 1"/><path d="M14 11a5 5 0 0 0-7.07 0l-2 2a5 5 0 0 0 7.07 7.07l1-1"/></svg></div>
+            <div>
+              <div class="mod-name">URL &amp; Attachment</div>
+              <div class="mod-sub">lexical risk scan</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+
+      <div class="group" style="flex: 1.05 1 0;">
+        <div class="group-label">Explainable Output</div>
+        <div class="outputs">
+          <div class="out">
+            <div class="out-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 1 1 9-9"/><path d="M12 12 8 8M12 7v2M17 12h2"/></svg></div>
+            <div>
+              <div class="out-name">Risk Score, per-signal</div>
+              <div class="out-note">not a black box</div>
+            </div>
+          </div>
+          <div class="out">
+            <div class="out-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.3"/></svg></div>
+            <div>
+              <div class="out-name">Origin Geolocation</div>
+              <div class="out-note">for &ge;90% risk mail</div>
+            </div>
+          </div>
+          <div class="out">
+            <div class="out-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+            <div>
+              <div class="out-name">Hash-Chained Evidence</div>
+              <div class="out-note">tamper-evident custody</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+
+      <div class="group" style="flex: 0.85 1 0;">
+        <div class="group-label">Delivered To</div>
+        <div class="delivery">
+          <div class="del">
+            <div class="del-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M7 13V9M11 13V7M15 13v-3M19 13V8"/></svg></div>
+            <div>
+              <div class="del-name">Investigator Dashboard</div>
+              <div class="del-sub">cases, correlation, PDF</div>
+            </div>
+          </div>
+          <div class="del">
+            <div class="del-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><path d="M9 2h6a1 1 0 0 1 1 1v4.3a2.5 2.5 0 1 0 0 4.9V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-4.8a2.5 2.5 0 1 0 0-4.9V3a1 1 0 0 1 1-1Z"/></svg></div>
+            <div>
+              <div class="del-name">Chrome Extension</div>
+              <div class="del-sub">labels the real inbox</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="innovation">
+      <div class="tile">
+        <div class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/></svg></div>
+        <div>
+          <div class="tile-title">Hybrid Engine</div>
+          <div class="tile-sub">Real forensics + AI reasoning fused into one score</div>
+        </div>
+      </div>
+      <div class="tile">
+        <div class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></div>
+        <div>
+          <div class="tile-title">Attribution Reasoning</div>
+          <div class="tile-sub">Compromised &middot; spoofed &middot; anonymized &middot; direct actor</div>
+        </div>
+      </div>
+      <div class="tile">
+        <div class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l2-2a5 5 0 0 0-7.07-7.07l-1 1"/><path d="M14 11a5 5 0 0 0-7.07 0l-2 2a5 5 0 0 0 7.07 7.07l1-1"/></svg></div>
+        <div>
+          <div class="tile-title">Tamper-Evident Chain</div>
+          <div class="tile-sub">SHA-256 chain, re-verified live on every load</div>
+        </div>
+      </div>
+      <div class="tile">
+        <div class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg></div>
+        <div>
+          <div class="tile-title">$0-by-Default</div>
+          <div class="tile-sub">Full pipeline runs free; upgrades with API keys</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function fitSlide() {
+    var margin = 32;
+    var scale = Math.min(
+      (window.innerWidth - margin) / 1280,
+      (window.innerHeight - margin) / 720,
+      1
+    );
+    document.querySelector('.slide').style.transform = 'scale(' + scale + ')';
+  }
+  window.addEventListener('resize', fitSlide);
+  fitSlide();
+</script>
