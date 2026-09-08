@@ -17,6 +17,11 @@ class Settings(BaseSettings):
     # the local keyword heuristic — see app/nlp/llm_analyzer.py.
     anthropic_api_key: str = ""
 
+    # Optional shared-secret gate on all /api/* routes (see app/auth.py). Unset
+    # by default so a fresh clone/local demo needs zero configuration; set this
+    # before exposing the API beyond localhost.
+    backend_api_key: str = ""
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

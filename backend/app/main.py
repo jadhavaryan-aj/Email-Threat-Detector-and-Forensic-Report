@@ -1,9 +1,10 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import routes_cases, routes_correlation, routes_dashboard, routes_ingest, routes_reports
+from app.auth import require_api_key
 from app.config import settings
 from app.db import init_db
 
@@ -24,11 +25,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(routes_ingest.router)
-app.include_router(routes_cases.router)
-app.include_router(routes_correlation.router)
-app.include_router(routes_dashboard.router)
-app.include_router(routes_reports.router)
+_auth = [Depends(require_api_key)]
+app.include_router(routes_ingest.router, dependencies=_auth)
+app.include_router(routes_cases.router, dependencies=_auth)
+app.include_router(routes_correlation.router, dependencies=_auth)
+app.include_router(routes_dashboard.router, dependencies=_auth)
+app.include_router(routes_reports.router, dependencies=_auth)
 
 
 @app.get("/health")

@@ -3,6 +3,7 @@ import { UploadPage } from "./pages/UploadPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { CaseListPage } from "./pages/CaseListPage";
 import { CaseDetailPage } from "./pages/CaseDetailPage";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 function navClass({ isActive }: { isActive: boolean }) {
   return isActive
@@ -36,12 +37,14 @@ function App() {
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-6 py-8">
-        <Routes>
-          <Route path="/" element={<UploadPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/cases" element={<CaseListPage />} />
-          <Route path="/cases/:caseId" element={<CaseDetailPage />} />
-        </Routes>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<UploadPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/cases" element={<CaseListPage />} />
+            <Route path="/cases/:caseId" element={<CaseDetailPage />} />
+          </Routes>
+        </ErrorBoundary>
       </main>
     </div>
   );

@@ -22,8 +22,10 @@ client of your own; can't be pre-configured).
 Raw .eml → parsing → header/auth analysis (SPF/DKIM/DMARC, live DNS + real crypto)
         → URL extraction/analysis → domain/IP/threat intelligence (real DNS/WHOIS/
           ip-api, honest "unavailable" without a threat-intel API key)
-        → NLP heuristic content analysis → signal-based explainable risk scoring
-        → case creation → cross-case correlation (shared infrastructure)
+        → AI content analysis (Claude, heuristic fallback) → signal-based explainable
+          risk scoring → hash-chained evidence log entry
+        → case creation → cross-case correlation (shared infrastructure) +
+          rule-based attribution scenario assessment
         → investigation dashboard → forensic PDF report
 ```
 
@@ -33,8 +35,10 @@ SPF/DMARC verdict comes from a live DNS lookup, every DKIM verdict from real
 cryptographic signature verification, every IP/domain intelligence field from a real
 lookup (or an honest "unavailable" if the lookup fails or no API key is configured).
 
-**Backend**: Python 3.11 + FastAPI + SQLModel + SQLite
+**Backend**: Python 3.11 + FastAPI + SQLModel + SQLite (Postgres-ready — see Deploying)
 **Frontend**: React + Vite + TypeScript + Tailwind CSS v4 (dark SOC-style UI)
+**AI**: Claude (Anthropic) for content/intent analysis, with a local heuristic fallback
+when no API key is configured
 
 ## Installation & setup
 
@@ -70,6 +74,7 @@ All optional — the full pipeline runs with zero keys configured:
 | `ABUSEIPDB_API_KEY` | Optional — enables real IP threat-intel verdicts |
 | `VIRUSTOTAL_API_KEY` | Optional — enables real domain threat-intel verdicts |
 | `ANTHROPIC_API_KEY` | Optional — enables real AI content analysis (Claude) in place of the local keyword heuristic for identity disguise, social engineering, and similar deception patterns |
+| `BACKEND_API_KEY` | Optional — gates every `/api/*` route behind this shared secret (`X-API-Key` header). Unset means the API is fully open; the frontend prompts for it once and remembers it in `localStorage` if the backend rejects a request with 401 |
 
 ## Testing
 
@@ -78,9 +83,10 @@ cd backend
 .venv\Scripts\python -m pytest tests\ -v
 ```
 
-35 tests: `.eml`/header/signal-generation unit tests plus end-to-end API integration
-tests against the real demo fixtures (these need network access — real DNS/WHOIS/
-ip-api lookups, by design).
+64 tests: `.eml`/header/signal-generation unit tests, hash-chain and attribution-
+scenario unit tests, API-key auth gate tests, plus end-to-end API integration tests
+against the real demo fixtures (these need network access — real DNS/WHOIS/ip-api
+lookups, by design).
 
 ## Sample email testing
 
@@ -111,8 +117,13 @@ curl -X POST http://127.0.0.1:8000/api/cases/upload -F "file=@sample_emails/clea
 | `PATCH /api/cases/{id}/status` | Update case status |
 | `GET /api/cases/{id}/indicators` | Shared-infrastructure correlation for this case |
 | `GET /api/cases/{id}/graph` | Node/edge graph JSON for the correlation view |
+| `GET /api/cases/{id}/attribution` | Rule-based attribution scenario assessment (confidence + reasoning) |
+| `GET /api/cases/{id}/evidence-log` | Hash-chained evidence log, live-verified on every call |
 | `GET /api/cases/{id}/report` | Forensic PDF report |
 | `GET /api/dashboard/stats` | Aggregate dashboard statistics |
+
+All `/api/*` routes above require the `X-API-Key` header if `BACKEND_API_KEY` is set
+(see Environment variables); `/health` never requires it.
 
 Interactive docs (Swagger) at http://localhost:8000/docs once the backend is running.
 
@@ -129,36 +140,68 @@ Interactive docs (Swagger) at http://localhost:8000/docs once the backend is run
 8. **Infrastructure Intelligence** — real IP geolocation/ASN and domain WHOIS, with
    the "observed infrastructure, not attacker location" disclaimer front and center.
 9. **URL Analysis** — lexical risk flags on any links.
-10. **Threat Correlation** graph + shared-infrastructure callouts.
-11. Change the case **status**, add an **analyst note**.
-12. Click **Export Report** for the full forensic PDF.
+10. **Threat Correlation** graph + shared-infrastructure callouts, next to the
+    **Attribution Assessment** (spoofed domain / compromised account / anonymized
+    infrastructure / direct actor, with stated confidence and reasoning).
+11. **Evidence Log** — the hash-chained chain of custody, live-verified on every page
+    load (green = verified). For real drama: edit one entry's payload directly in the
+    database and reload — verification catches it and turns red.
+12. Change the case **status**, add an **analyst note**.
+13. Click **Export Report** for the full forensic PDF.
+
+## Deploying
+
+**Docker Compose** (backend + frontend, wired together):
+
+```bash
+docker compose up --build
+```
+
+Frontend on http://localhost, reverse-proxying `/api` to the backend container
+(`frontend/nginx.conf`). Backend data persists in a named volume (`backend_data`).
+For a from-scratch cloud deployment, `backend/Dockerfile` and `frontend/Dockerfile`
+also build independently if you're placing each on a different service.
+
+Before exposing either container beyond localhost, change:
+
+| Variable | Change to |
+|---|---|
+| `CORS_ORIGINS` | The real frontend origin(s) — never `*` |
+| `DATABASE_URL` | A Postgres connection string for anything beyond a demo — SQLModel/SQLAlchemy make this a pure connection-string swap, no code changes (`postgresql://user:pass@host:5432/dbname`); `psycopg2-binary` is already in `requirements.txt` |
+| `BACKEND_API_KEY` | A real random secret, so the API isn't fully open to the internet |
 
 ## Limitations & future work
 
-Not built this pass, tracked in [docs/build_roadmap.md](docs/build_roadmap.md): a live
-LLM-backed content-analysis provider (interface ships, heuristic is the default),
-confidence-scored attribution scenarios, real-time WebSocket alerts, and a
-hash-chained tamper-evident evidence log. A real paid threat-intel key
-(AbuseIPDB/VirusTotal) can be dropped into `backend/.env` at any time — the code path
-is already real, just gated on the key being present.
+Not built this pass, tracked in [docs/build_roadmap.md](docs/build_roadmap.md):
+real-time WebSocket alerts, and full multi-user auth/RBAC (the current
+`BACKEND_API_KEY` is a single shared secret, not per-user accounts). A real paid
+threat-intel key (AbuseIPDB/VirusTotal) can be dropped into `backend/.env` at any
+time — the code path is already real, just gated on the key being present.
 
 ## Project layout
 
 ```
 backend/
   app/
-    services/       ingestion pipeline, detection engine, scoring, correlation, dashboard, PDF report
+    services/       ingestion pipeline, detection engine, scoring, correlation, dashboard, PDF report, evidence log
     intelligence/    pluggable Domain/IP/ThreatIntelligence providers (real local defaults)
-    nlp/             pluggable content-analysis interface + local heuristic default
-    utils/           eml/header/URL parsing, domain-similarity matching
+    nlp/             pluggable content-analysis interface — Claude (LLM) + local heuristic fallback
+    utils/           eml/header/URL parsing, domain-similarity matching, SHA-256 hash-chain primitives
     models/          SQLModel tables (case, signal, intelligence, correlation, forensics)
     api/             FastAPI routers
     templates/       Jinja2 forensic report template
-  tests/             pytest suite (unit + API integration)
+    auth.py          optional shared-secret gate on /api/*
+  tests/             pytest suite (unit + API integration) — 64 tests
+  Dockerfile         backend container image
 frontend/
   src/
     pages/           Dashboard, Upload, Case list, Case detail
-    components/      Signal cards, identity panel, intelligence cards, correlation graph, timeline, notes
+    components/      Signal cards, identity panel, intelligence cards, correlation graph, attribution panel,
+                      evidence log panel, timeline, notes, error boundary
+  Dockerfile         multi-stage build → nginx, reverse-proxies /api to the backend container
+  nginx.conf         SPA fallback routing + /api proxy config
+extension/           Chrome extension — Gmail inbox scanner with threat-level labeling
 sample_emails/       3 real, DNS-verified demo fixtures + the script that generated them
 docs/                PS-to-code mapping and the phased roadmap
+docker-compose.yml   runs backend + frontend together (`docker compose up --build`)
 ```

@@ -15,3 +15,6 @@ xhtml2pdf==0.2.16
 pytest==8.3.4
 httpx==0.28.1
 anthropic==0.40.0
+# Only imported by SQLAlchemy when DATABASE_URL points at postgresql:// — the
+# default sqlite:/// setup never touches this. See README "Deploying".
+psycopg2-binary==2.9.10
