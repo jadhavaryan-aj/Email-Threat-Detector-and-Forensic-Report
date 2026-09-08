@@ -1,5 +1,6 @@
 import { apiClient } from "./client";
 import type {
+  AttributionAssessment,
   CaseDetail,
   CaseGraph,
   CaseNote,
@@ -72,5 +73,10 @@ export function getCaseReportUrl(caseId: number): string {
 
 export async function getCaseEvidenceLog(caseId: number): Promise<EvidenceLog> {
   const { data } = await apiClient.get<EvidenceLog>(`/cases/${caseId}/evidence-log`);
+  return data;
+}
+
+export async function getCaseAttribution(caseId: number): Promise<AttributionAssessment> {
+  const { data } = await apiClient.get<AttributionAssessment>(`/cases/${caseId}/attribution`);
   return data;
 }

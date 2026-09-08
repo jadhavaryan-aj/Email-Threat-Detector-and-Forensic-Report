@@ -141,6 +141,20 @@ def test_min_score_filter(client, load_eml):
     assert len(unfiltered) >= len(filtered)
 
 
+def test_attribution_endpoint_returns_spoofed_domain_for_lookalike_fixture(client, load_eml):
+    upload = _upload(client, load_eml, "dmarc_fail_lookalike_bec_001.eml")
+    attribution = client.get(f"/api/cases/{upload['case_id']}/attribution").json()
+    assert attribution["scenario"] == "spoofed_domain"
+    assert attribution["confidence"] > 0
+    assert attribution["reasoning"]
+
+
+def test_attribution_endpoint_returns_insufficient_data_for_clean_fixture(client, load_eml):
+    upload = _upload(client, load_eml, "clean_legit_001.eml")
+    attribution = client.get(f"/api/cases/{upload['case_id']}/attribution").json()
+    assert attribution["scenario"] == "insufficient_data"
+
+
 def test_evidence_log_is_chained_and_valid_after_ingestion(client, load_eml):
     upload = _upload(client, load_eml, "clean_legit_001.eml")
     log = client.get(f"/api/cases/{upload['case_id']}/evidence-log").json()

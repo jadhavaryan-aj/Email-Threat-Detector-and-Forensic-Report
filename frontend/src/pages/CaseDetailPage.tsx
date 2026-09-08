@@ -9,6 +9,7 @@ import {
   getCaseTimeline,
   updateCaseStatus,
 } from "../api/cases";
+import { AttributionPanel } from "../components/AttributionPanel";
 import { CaseNotesPanel } from "../components/CaseNotesPanel";
 import { CorrelationGraph } from "../components/CorrelationGraph";
 import { EvidenceLogPanel } from "../components/EvidenceLogPanel";
@@ -333,17 +334,25 @@ export function CaseDetailPage() {
 
       <section className="mb-8 rounded-xl border border-zinc-800 bg-zinc-900/40 p-5">
         <SectionHeading>Threat Correlation</SectionHeading>
-        {graph && <CorrelationGraph graph={graph} rootId={`case:${data.id}`} />}
-        {indicators && indicators.shared_infrastructure.length > 0 && (
-          <div className="mt-3 space-y-1.5">
-            {indicators.shared_infrastructure.map((item) => (
-              <p key={`${item.indicator_type}:${item.indicator_value}`} className="text-sm text-amber-400">
-                ⚠ Potential shared infrastructure: <span className="font-mono">{item.indicator_value}</span> also
-                observed in case(s) {item.other_case_ids.join(", ")}. {item.note}
-              </p>
-            ))}
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+          <div>
+            {graph && <CorrelationGraph graph={graph} rootId={`case:${data.id}`} />}
+            {indicators && indicators.shared_infrastructure.length > 0 && (
+              <div className="mt-3 space-y-1.5">
+                {indicators.shared_infrastructure.map((item) => (
+                  <p key={`${item.indicator_type}:${item.indicator_value}`} className="text-sm text-amber-400">
+                    ⚠ Potential shared infrastructure: <span className="font-mono">{item.indicator_value}</span> also
+                    observed in case(s) {item.other_case_ids.join(", ")}. {item.note}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+          <div>
+            <p className="mb-2.5 text-xs font-semibold tracking-wide text-zinc-400 uppercase">Attribution Assessment</p>
+            <AttributionPanel caseId={data.id} />
+          </div>
+        </div>
       </section>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

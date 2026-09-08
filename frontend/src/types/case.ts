@@ -214,6 +214,19 @@ export interface EvidenceLog {
   entries: EvidenceLogEntry[];
 }
 
+export type AttributionScenario =
+  | "insufficient_data"
+  | "spoofed_domain"
+  | "compromised_account"
+  | "anonymized_infrastructure"
+  | "direct_actor";
+
+export interface AttributionAssessment {
+  scenario: AttributionScenario;
+  confidence: number;
+  reasoning: string;
+}
+
 export interface GraphNode {
   id: string;
   type: "case" | "ip" | "domain";
