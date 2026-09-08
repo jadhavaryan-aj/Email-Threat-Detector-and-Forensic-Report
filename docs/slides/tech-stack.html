@@ -1,0 +1,421 @@
+<title>Technology Stack</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #09090b;
+    --panel: #131316;
+    --panel-border: #232328;
+    --text: #f4f4f5;
+    --text-dim: #9a9aa3;
+    --text-faint: #55555c;
+    --cyan: #22d3ee;
+    --cyan-dim: rgba(34, 211, 238, 0.12);
+    --violet: #a78bfa;
+    --violet-dim: rgba(167, 139, 250, 0.12);
+    --amber: #f2b84b;
+    --amber-dim: rgba(242, 184, 75, 0.12);
+    --free: #34d399;
+    --font-display: 'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-display);
+  }
+
+  .stage {
+    width: 100vw;
+    height: 100vh;
+    min-height: 720px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .slide {
+    position: relative;
+    width: 100%;
+    max-width: 1280px;
+    aspect-ratio: 16 / 9;
+    background:
+      radial-gradient(ellipse 900px 500px at 85% -10%, rgba(34, 211, 238, 0.07), transparent),
+      var(--bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    padding: clamp(28px, 4vw, 52px) clamp(32px, 5vw, 64px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* faint circuit-trace texture in the background, subject-appropriate rather than decorative gradient noise */
+  .slide::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 20%, black 0%, transparent 70%);
+  }
+
+  header {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: clamp(18px, 2.8vw, 30px);
+    flex-wrap: wrap;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.09em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-size: clamp(26px, 3.4vw, 38px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .stack-meta {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--text-faint);
+    text-align: right;
+    line-height: 1.6;
+    white-space: nowrap;
+  }
+
+  .stack-meta strong { color: var(--text-dim); font-weight: 500; }
+
+  .columns {
+    position: relative;
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.15fr 1fr 1.05fr;
+    gap: clamp(14px, 1.8vw, 22px);
+    min-height: 0;
+  }
+
+  .col {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: clamp(16px, 2vw, 22px) clamp(16px, 2vw, 20px);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .col-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .col-icon {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+  }
+  .col-icon svg { width: 15px; height: 15px; }
+
+  .col[data-tone="cyan"] .col-icon { background: var(--cyan-dim); color: var(--cyan); }
+  .col[data-tone="violet"] .col-icon { background: var(--violet-dim); color: var(--violet); }
+  .col[data-tone="amber"] .col-icon { background: var(--amber-dim); color: var(--amber); }
+
+  .col-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .col-sub {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-faint);
+    margin-top: 1px;
+  }
+
+  .group + .group { margin-top: 13px; }
+  .group-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 7px;
+  }
+
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .pill {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--text-dim);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--panel-border);
+    border-radius: 5px;
+    padding: 4px 8px;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+
+  .col[data-tone="cyan"] .pill.lead { border-color: rgba(34, 211, 238, 0.35); color: var(--cyan); background: var(--cyan-dim); }
+  .col[data-tone="violet"] .pill.lead { border-color: rgba(167, 139, 250, 0.35); color: var(--violet); background: var(--violet-dim); }
+
+  .services {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .svc {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid var(--panel-border);
+  }
+  .svc:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .svc-name {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .svc-role {
+    font-size: 11.5px;
+    color: var(--text-faint);
+    margin-top: 2px;
+  }
+
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 3px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .tag.free { color: var(--free); background: rgba(52, 211, 153, 0.12); border: 1px solid rgba(52, 211, 153, 0.3); }
+  .tag.opt { color: var(--text-dim); background: rgba(255,255,255,0.04); border: 1px solid var(--panel-border); }
+
+  footer {
+    position: relative;
+    margin-top: clamp(14px, 2vw, 20px);
+    padding-top: clamp(12px, 1.6vw, 16px);
+    border-top: 1px solid var(--panel-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .thesis {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .thesis strong { color: var(--free); font-weight: 600; }
+
+  .thesis-icon {
+    display: inline-flex;
+    vertical-align: -3px;
+    margin-right: 7px;
+    color: var(--free);
+  }
+  .thesis-icon svg { width: 14px; height: 14px; }
+
+  .page-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-faint);
+    flex-shrink: 0;
+  }
+</style>
+
+<div class="stage">
+  <div class="slide">
+    <header>
+      <div>
+        <span class="eyebrow">SIH26106 · AI Email Threat Detection Platform</span>
+        <h1>Technology Stack</h1>
+      </div>
+      <div class="stack-meta">
+        <div><strong>24</strong> libraries · <strong>4</strong> free intel services</div>
+        <div>Python 3.11 backend · React 19 frontend</div>
+      </div>
+    </header>
+
+    <div class="columns">
+      <div class="col" data-tone="cyan">
+        <div class="col-head">
+          <span class="col-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/><circle cx="7" cy="7" r="0.6" fill="currentColor" stroke="none"/><circle cx="7" cy="17" r="0.6" fill="currentColor" stroke="none"/></svg>
+          </span>
+          <div>
+            <div class="col-title">Backend</div>
+            <div class="col-sub">FastAPI · SQLModel · SQLite</div>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-label">Core</div>
+          <div class="pills">
+            <span class="pill lead">Python 3.11</span>
+            <span class="pill lead">FastAPI</span>
+            <span class="pill">uvicorn</span>
+            <span class="pill">SQLModel</span>
+            <span class="pill">SQLite</span>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-label">Email forensics &amp; intel</div>
+          <div class="pills">
+            <span class="pill">dkimpy</span>
+            <span class="pill">dnspython</span>
+            <span class="pill">tldextract</span>
+            <span class="pill">rapidfuzz</span>
+            <span class="pill">python-whois</span>
+            <span class="pill">requests</span>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-label">Reports &amp; tests</div>
+          <div class="pills">
+            <span class="pill">Jinja2</span>
+            <span class="pill">xhtml2pdf</span>
+            <span class="pill">pytest</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col" data-tone="violet">
+        <div class="col-head">
+          <span class="col-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="1.5"/><line x1="3" y1="8.5" x2="21" y2="8.5"/><circle cx="6" cy="6.25" r="0.6" fill="currentColor" stroke="none"/></svg>
+          </span>
+          <div>
+            <div class="col-title">Frontend</div>
+            <div class="col-sub">Dark SOC dashboard UI</div>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-label">Framework</div>
+          <div class="pills">
+            <span class="pill lead">React 19</span>
+            <span class="pill lead">TypeScript</span>
+            <span class="pill">Vite</span>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-label">Styling</div>
+          <div class="pills">
+            <span class="pill">Tailwind CSS v4</span>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-label">Data &amp; routing</div>
+          <div class="pills">
+            <span class="pill">React Router</span>
+            <span class="pill">TanStack Query</span>
+            <span class="pill">Axios</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col" data-tone="amber">
+        <div class="col-head">
+          <span class="col-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18Z"/></svg>
+          </span>
+          <div>
+            <div class="col-title">External Intelligence</div>
+            <div class="col-sub">Live lookups, no mocked data</div>
+          </div>
+        </div>
+
+        <div class="services">
+          <div class="svc">
+            <div>
+              <div class="svc-name">ip-api.com</div>
+              <div class="svc-role">IP geolocation &amp; ASN</div>
+            </div>
+            <span class="tag free">$0 / no key</span>
+          </div>
+          <div class="svc">
+            <div>
+              <div class="svc-name">Spamhaus DBL / ZEN</div>
+              <div class="svc-role">Domain &amp; IP reputation</div>
+            </div>
+            <span class="tag free">$0 / no key</span>
+          </div>
+          <div class="svc">
+            <div>
+              <div class="svc-name">AbuseIPDB</div>
+              <div class="svc-role">IP threat verdicts</div>
+            </div>
+            <span class="tag opt">optional</span>
+          </div>
+          <div class="svc">
+            <div>
+              <div class="svc-name">VirusTotal</div>
+              <div class="svc-role">Domain threat verdicts</div>
+            </div>
+            <span class="tag opt">optional</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="thesis">
+        <span class="thesis-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </span>
+        Every core capability runs on <strong>$0 in API keys</strong> — paid threat-intel is opt-in, never required.
+      </div>
+      <span class="page-num">04</span>
+    </footer>
+  </div>
+</div>

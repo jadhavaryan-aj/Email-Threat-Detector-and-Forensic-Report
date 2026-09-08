@@ -1,0 +1,28 @@
+Received: from mx.example-recipient.org (localhost [127.0.0.1]) by
+ mx.example-recipient.org with ESMTP id 7q3mv0aa for
+ <priya.sharma@example-recipient.org>; Sun, 06 Sep 2026 03:42:10 +0000
+Received: from vps-198231.hostingcloud.net (unknown [1.1.1.1]) by
+ mx.example-recipient.org with SMTP id 9h2kx7bd for
+ <priya.sharma@example-recipient.org>; Sun, 06 Sep 2026 03:41:55 +0000
+Message-ID: <8f2ac910-secure-alert@sbi.co.in>
+Date: Sun, 06 Sep 2026 03:41:50 +0000
+From: State Bank of India Security <security-alerts@sbi.co.in>
+Reply-To: SBI Verification Support <sbi.verify.support@protonmail.com>
+To: Priya Sharma <priya.sharma@example-recipient.org>
+Subject: URGENT: Your SBI Account Will Be Suspended - Verify Now
+Return-Path: <security-alerts@sbi.co.in>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Dear Valued Customer,
+
+We have detected unusual activity on your SBI account. Your account will be l=
+ocked within 24 hours unless you verify your account immediately.
+
+Please click here to confirm your identity and reset your password immediatel=
+y: hxxp://sbi-online-verify[.]net/kyc-update
+
+Failure to act now will result in permanent suspension of your account.
+
+SBI Security Team

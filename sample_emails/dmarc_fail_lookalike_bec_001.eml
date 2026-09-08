@@ -1,0 +1,46 @@
+Received: from mx.example-recipient.org (localhost [127.0.0.1]) by
+ mx.example-recipient.org with ESMTP id 4kd82jbb for
+ <priya.sharma@example-recipient.org>; Sun, 06 Sep 2026 14:05:33 +0000
+Received: from mail.paypa1-secure-verification.com (unknown [8.8.8.8]) by
+ mx.example-recipient.org with SMTP id 2xa91mnc for
+ <priya.sharma@example-recipient.org>; Sun, 06 Sep 2026 14:05:10 +0000
+Message-ID: <inv-2026-0906-billing@paypa1-secure-verification.com>
+Date: Sun, 06 Sep 2026 14:05:00 +0000
+From: PayPal Billing Support <billing@paypa1-secure-verification.com>
+To: Priya Sharma <priya.sharma@example-recipient.org>
+Subject: Action Required: Overdue Invoice and Updated Payment Instructions
+Return-Path: <billing@paypa1-secure-verification.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="===============7313049840852828419=="
+
+--===============7313049840852828419==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+Dear Priya,
+
+This is an urgent request from CEO - please handle a task for me confidential=
+ly before end of day.
+
+Please find the overdue invoice attached. Payment due within 24 hours. Kindly=
+ update your bank details and use the new account details below for this and =
+all future payments to avoid any delay:
+
+Beneficiary Account: 000123456789
+Routing Number: 026073150
+
+Please confirm once the wire transfer has been sent.
+
+Regards,
+Billing Department
+PayPal Billing Support
+
+--===============7313049840852828419==
+Content-Type: application/octet-stream
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="Payment_Instructions.js"
+MIME-Version: 1.0
+
+Ly8gVGVzdCBmaXh0dXJlIG9ubHkgLSBub3QgcmVhbCBleGVjdXRhYmxlIGNvbnRlbnQu
+
+--===============7313049840852828419==--

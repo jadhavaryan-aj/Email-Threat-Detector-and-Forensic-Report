@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Email Threat Shield</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="../icons/icon48.png" alt="" width="22" height="22">
+    <div>
+      <h1>Email Threat Shield</h1>
+      <p class="subtitle">SIH26106 · Gmail inbox scanner</p>
+    </div>
+  </header>
+
+  <section id="signedOutView" class="view hidden">
+    <p class="lead">Sign in to scan your Gmail inbox and label emails by threat level.</p>
+    <button id="signInBtn" class="primary">Sign in with Google</button>
+    <p class="fineprint">Requests read + label access to your Gmail — nothing is sent anywhere except your own local analysis backend.</p>
+  </section>
+
+  <section id="signedInView" class="view hidden">
+    <button id="scanBtn" class="primary">Scan Inbox</button>
+    <p class="scan-note">Scans your inbox (up to <span id="batchSize">200</span> emails), skips ones already scanned.</p>
+
+    <div id="progress" class="hidden">
+      <div class="progress-header">
+        <div class="spinner"></div>
+        <span id="progressText">Scanning…</span>
+      </div>
+      <div class="progress-track">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+    </div>
+
+    <div id="summary" class="summary hidden">
+      <p class="summary-line" id="summaryLine"></p>
+      <div id="breakdown" class="breakdown"></div>
+      <p id="errorLine" class="error-line hidden"></p>
+    </div>
+
+    <div id="errorBanner" class="error-banner hidden"></div>
+
+    <div id="recentScans" class="recent-scans hidden">
+      <p class="recent-scans-title">Recent scans</p>
+      <div id="recentScansList"></div>
+    </div>
+
+    <div class="footer-links">
+      <a href="http://localhost:5173/dashboard" target="_blank" rel="noopener">Open Dashboard →</a>
+      <button id="signOutBtn" class="link-btn">Sign out</button>
+    </div>
+  </section>
+
+  <script src="popup.js"></script>
+</body>
+</html>

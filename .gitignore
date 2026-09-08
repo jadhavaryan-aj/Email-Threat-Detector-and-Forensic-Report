@@ -1,0 +1,8 @@
+.DS_Store
+Thumbs.db
+
+# Chrome extension packaging output — .pem is the private signing key,
+# .crx is a build artifact derived from it. Neither belongs in git; if the
+# .pem is ever lost, Chrome just assigns a new extension ID on next pack.
+extension.pem
+extension.crx
