@@ -201,18 +201,9 @@ signOutBtn.addEventListener("click", () => {
   });
 });
 
-function openDashboard() {
-  chrome.tabs.create({ url: "http://localhost:5173/dashboard" });
-}
-
-document.querySelectorAll(".open-dashboard-link").forEach((el) => {
-  el.addEventListener("click", (e) => {
-    e.preventDefault();
-    openDashboard();
-  });
-});
-
-// Intercept any anchor clicks inside popup to safely open tabs using chrome.tabs.create
+// Intercept any anchor clicks inside the popup (both "Open Dashboard" links
+// included) and open them via chrome.tabs.create instead of a plain
+// target="_blank" navigation, which silently no-ops from an MV3 popup.
 document.addEventListener("click", (e) => {
   const anchor = e.target.closest("a");
   if (anchor && anchor.href && (anchor.href.startsWith("http://") || anchor.href.startsWith("https://"))) {
