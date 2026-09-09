@@ -198,7 +198,7 @@ async function scanInbox() {
       const sourceUrl = gmailMessageUrl(messageId);
       const upload = await uploadToBackend(messageId, rawBytes, sourceUrl);
       const caseDetail = await getCaseDetail(upload.case_id);
-      const email = caseDetail.email_analyses[0];
+      const email = caseDetail?.email_analyses?.[0];
       const detection = email?.detection_result;
       const label = detection?.classification_label || "suspicious";
 

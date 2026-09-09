@@ -44,7 +44,7 @@ always clear what's demo-ready today versus on the roadmap. See
 |---|---|---|
 | Cross-case shared-infrastructure detection | ✅ real, via `IndicatorObservation` (one row per IP/domain per case) + a `GROUP BY ... HAVING COUNT(DISTINCT case_id) > 1` query — deliberately not a generic graph database, which would be over-engineering at this scale | [`backend/app/services/correlation_service.py`](../backend/app/services/correlation_service.py) |
 | Graph-based relationship view | ✅ nodes/edges built on the fly, rendered as a plain-SVG mini-graph (no new charting dependency) | `GET /api/cases/{id}/graph`, [`frontend/src/components/CorrelationGraph.tsx`](../frontend/src/components/CorrelationGraph.tsx) |
-| Confidence-scored attribution scenarios (compromised account / spoofed domain / anonymized infra / direct actor) | ⬜ roadmap | not built — see build_roadmap.md |
+| Confidence-scored attribution scenarios (compromised account / spoofed domain / anonymized infra / direct actor) | ✅ rule-based, derived from signals/intelligence already computed — not a new ML model | [`correlation_service.py::assess_attribution_scenario`](../backend/app/services/correlation_service.py), `GET /api/cases/{id}/attribution` |
 | "Potential correlation" wording, never "same attacker" | ✅ | baked into `correlation_service.py`'s own note text and the frontend's shared-infrastructure callout |
 
 ## 5. Alerting, Dashboard, and Forensic Reporting
@@ -63,7 +63,7 @@ always clear what's demo-ready today versus on the roadmap. See
 | Requirement | Status |
 |---|---|
 | Attribution disclaimer in every report | ✅ — the report's closing section states geolocation "does not establish the physical location or identity of the attacker" verbatim |
-| Chain-of-custody / tamper-evident evidence log | ⬜ roadmap (hash-chained `EvidenceLogEntry`) |
+| Chain-of-custody / tamper-evident evidence log | ✅ SHA-256 hash-chained `EvidenceLogEntry` rows, live-verified (recomputed, not cached) on every read | [`hash_chain.py`](../backend/app/utils/hash_chain.py), [`evidence_log_service.py`](../backend/app/services/evidence_log_service.py), `GET /api/cases/{id}/evidence-log` |
 | Configurable PII retention/masking | ⬜ roadmap |
 | Untrusted-input handling | ✅ 10MB upload cap with a bounded chunked read (never buffers an oversized file fully before checking), extension validation, malformed-email parsing degrades gracefully instead of crashing (verified: garbage bytes with a `.eml` extension are accepted and analyzed as an empty-fields email, never a 500) |
 

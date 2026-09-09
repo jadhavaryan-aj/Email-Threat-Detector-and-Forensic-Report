@@ -24,8 +24,10 @@ export function UploadPage() {
           const res = await uploadEmail(file);
           outcomes.push({ name: file.name, status: "ok", message: `analyzed → case #${res.case_id}` });
           lastCaseId = res.case_id;
-        } catch (err) {
-          const message = err instanceof Error ? err.message : "upload failed";
+        } catch (err: unknown) {
+          const axiosErr = err as { response?: { data?: { detail?: string } }; message?: string };
+          const detail = axiosErr?.response?.data?.detail;
+          const message = typeof detail === "string" ? detail : (axiosErr?.message || "upload failed");
           outcomes.push({ name: file.name, status: "error", message });
         }
       }
@@ -44,7 +46,17 @@ export function UploadPage() {
   function handleFiles(list: FileList | null) {
     if (!list) return;
     setResults([]);
-    setFiles(Array.from(list).filter((f) => f.name.toLowerCase().endsWith(".eml")));
+    const valid = Array.from(list).filter((f) => f.name.toLowerCase().endsWith(".eml"));
+    if (valid.length < list.length) {
+      setResults([
+        {
+          name: "Invalid format",
+          status: "error",
+          message: "Only .eml files are supported. Non-.eml files were filtered out.",
+        },
+      ]);
+    }
+    setFiles(valid);
   }
 
   return (

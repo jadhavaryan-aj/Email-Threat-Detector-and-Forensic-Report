@@ -201,4 +201,25 @@ signOutBtn.addEventListener("click", () => {
   });
 });
 
+function openDashboard() {
+  chrome.tabs.create({ url: "http://localhost:5173/dashboard" });
+}
+
+document.querySelectorAll(".open-dashboard-link").forEach((el) => {
+  el.addEventListener("click", (e) => {
+    e.preventDefault();
+    openDashboard();
+  });
+});
+
+// Intercept any anchor clicks inside popup to safely open tabs using chrome.tabs.create
+document.addEventListener("click", (e) => {
+  const anchor = e.target.closest("a");
+  if (anchor && anchor.href && (anchor.href.startsWith("http://") || anchor.href.startsWith("https://"))) {
+    e.preventDefault();
+    chrome.tabs.create({ url: anchor.href });
+  }
+});
+
 checkSignInState();
+

@@ -41,7 +41,7 @@ _TRANSIENT_DNS_ERRORS = (dns.resolver.NoNameservers, dns.exception.Timeout)
 _DNS_ERRORS = _DEFINITIVE_DNS_ERRORS + _TRANSIENT_DNS_ERRORS
 
 
-def _resolve_with_retry(domain: str, rdtype: str, timeout: float, retries: int = 1):
+def _resolve_with_retry(domain: str, rdtype: str, timeout: float = 10.0, retries: int = 2):
     for attempt in range(retries + 1):
         try:
             return dns.resolver.resolve(domain, rdtype, lifetime=timeout)
@@ -53,7 +53,7 @@ def _resolve_with_retry(domain: str, rdtype: str, timeout: float, retries: int =
     return None
 
 
-def _txt_records(domain: str, timeout: float = 4.0) -> list[str]:
+def _txt_records(domain: str, timeout: float = 10.0) -> list[str]:
     answers = _resolve_with_retry(domain, "TXT", timeout)
     if answers is None:
         return []

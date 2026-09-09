@@ -13,13 +13,15 @@ _MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 _CHUNK_SIZE = 1024 * 1024
 
 
-async def _read_bounded(file: UploadFile) -> bytes:
+def _read_bounded(file: UploadFile) -> bytes:
     """Reads in chunks and aborts as soon as the limit is exceeded, rather than
-    buffering an arbitrarily large body fully into memory before checking its size."""
+    buffering an arbitrarily large body fully into memory before checking its size.
+    Deliberately sync (file.file, not the async UploadFile.read) so this whole route
+    can be a plain `def` — see upload_email for why that matters."""
     chunks: list[bytes] = []
     total = 0
     while True:
-        chunk = await file.read(_CHUNK_SIZE)
+        chunk = file.file.read(_CHUNK_SIZE)
         if not chunk:
             break
         total += len(chunk)
@@ -40,14 +42,22 @@ def _sanitize_source_url(value: str) -> str:
 
 
 @router.post("/upload")
-async def upload_email(
+def upload_email(
     file: UploadFile, source_url: str = Form(default=""), session: Session = Depends(get_session)
 ):
+    """Deliberately a plain `def`, not `async def`: ingest_email() below makes
+    synchronous, blocking DNS/WHOIS/HTTP calls (SPF/DMARC lookups, domain/IP
+    intelligence). An `async def` route calling that directly would run it on
+    the single event-loop thread and freeze every other request — including
+    unrelated GETs like /health or the dashboard — for the full duration of
+    each upload. FastAPI runs sync routes in a thread pool automatically,
+    which is what every other route in this app already relies on; this one
+    just needs to match that pattern."""
     filename = file.filename or ""
     if not filename.lower().endswith(".eml"):
         raise HTTPException(status_code=400, detail="Only .eml files are supported")
 
-    raw_bytes = await _read_bounded(file)
+    raw_bytes = _read_bounded(file)
     if not raw_bytes:
         raise HTTPException(status_code=400, detail="Uploaded file is empty")
 

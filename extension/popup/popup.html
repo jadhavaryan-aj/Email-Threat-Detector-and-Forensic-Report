@@ -18,6 +18,9 @@
     <p class="lead">Sign in to scan your Gmail inbox and label emails by threat level.</p>
     <button id="signInBtn" class="primary">Sign in with Google</button>
     <p class="fineprint">Requests read + label access to your Gmail — nothing is sent anywhere except your own local analysis backend.</p>
+    <div class="footer-links">
+      <a href="http://localhost:5173/dashboard" id="openDashboardLinkSignedOut" class="open-dashboard-link">Open Dashboard →</a>
+    </div>
   </section>
 
   <section id="signedInView" class="view hidden">
@@ -48,7 +51,7 @@
     </div>
 
     <div class="footer-links">
-      <a href="http://localhost:5173/dashboard" target="_blank" rel="noopener">Open Dashboard →</a>
+      <a href="http://localhost:5173/dashboard" id="openDashboardLinkSignedIn" class="open-dashboard-link">Open Dashboard →</a>
       <button id="signOutBtn" class="link-btn">Sign out</button>
     </div>
   </section>
